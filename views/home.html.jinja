@@ -1,0 +1,55 @@
+{% extends "layout.html.jinja" %}
+{% block title %}
+Alarm Clock
+{% endblock title %}
+{% block content %}
+    <div class="clock" id="clockDisplay"></div>
+    <div id="nextAlarm"></div>
+{% endblock content %}
+{% block mainScript %}
+    showTime()
+{% endblock mainScript %}
+{% block afterStartWebSocket %}
+    let m = JSON.stringify({
+        "type": "alarms",
+        "command": "getNext"
+    })
+    setTimeout(() => {
+        ws.send(m)
+    }, 2000)
+{% endblock afterStartWebSocket %}
+{% block onWSMessage %}
+    if (data.type === 'alarmTriggered') {
+        console.log('ALARM SOUNDS')
+    }
+    if (data.type === 'nextAlarm') {
+        let nextAlarm = data
+        if (nextAlarm.enabled) {
+            let time = nextAlarm.time.split(':')
+            let h = parseInt(time[0])
+            let m = time[1]
+            let d = nextAlarm.day
+            let session = "AM";
+            
+            if (format == 12) {
+                if (h == 0){
+                    h = 12;
+                }
+                
+                if (h > 12){
+                    h = h - 12;
+                    session = "PM";
+                }
+            }
+            let timeString = `${d} ${h.toString().padStart(2, '0')}:${m}`
+            if (format == 12) {
+                timeString += ` ${session}`
+            }
+            {# console.log(timeString) #}
+            $('#nextAlarm').html(`Next Alarm: ${timeString}`)
+        }
+        else {
+            $('#nextAlarm').html('No alarm enabled')
+        }
+    }
+{% endblock onWSMessage %}

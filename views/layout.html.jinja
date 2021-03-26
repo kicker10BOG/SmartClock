@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+        <link rel="stylesheet" href="/css/main.css">
+        {% block styles %}{% endblock styles %}
+        <title>{% block title %}Alarm Clock{% endblock %}</title>
+    </head>
+    <body class="bg-dark text-white">
+        {% include "navbar.html.jinja" %}
+        
+        <div id="content" class="container">{% block content %}{% endblock %}</div>
+
+        <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+        <script>
+            $(() => {
+                var ws
+                var format = {{ settings['format'] }}
+
+                function showTime() {
+                    var date = new Date();
+                    var h = date.getHours(); // 0 - 23
+                    var m = date.getMinutes(); // 0 - 59
+                    var s = date.getSeconds(); // 0 - 59
+                    var session = "AM";
+                    
+                    if (format == 12) {
+                        if (h == 0){
+                            h = 12;
+                        }
+                        
+                        if (h > 12){
+                            h = h - 12;
+                            session = "PM";
+                        }
+                    }
+                    
+                    h = (h < 10) ? "0" + h : h;
+                    m = (m < 10) ? "0" + m : m;
+                    s = (s < 10) ? "0" + s : s;
+                    
+                    var time = h + ":" + m + ":" + s + " " + (format == 12 ? session : '');
+                    $('#clockDisplay').text(time);
+                    
+                    setTimeout(showTime, 1000);
+                }
+
+                {% block mainScript %}{% endblock mainScript %}
+
+                function startWebsocket() {
+                    ws = new WebSocket(`ws://${window.location.host}/ws`)
+
+                    ws.onopen = function(e) {
+                        console.log("[open] Connection established");
+                    };
+
+                    ws.onmessage = function(e) {
+                        data = JSON.parse(e.data)
+                        {# console.log(data) #}
+                        if (data.type === 'update') {
+                            format = data.format
+                        }
+                        {% block onWSMessage %}{% endblock onWSMessage %}
+                    };
+
+                    ws.onclose = function(e){
+                        // connection closed, discard old websocket and create a new one in 5s
+                        if (e.wasClean) {
+                            console.log(`[close] Connection closed cleanly, code=${e.code} reason=${e.reason}`);
+                        } else {
+                            console.log('[close] Connection died');
+                        }
+                        ws = null
+                        setTimeout(startWebsocket, 5000)
+                    }
+
+                    ws.onerror = function(error) {
+                        console.log(`[error] ${error.message}`);
+                    };
+
+                    setTimeout(() => {
+                        if (ws.readyState != WebSocket.OPEN) {
+                            startWebsocket()
+                        }
+                    }, 5000)
+                }
+
+                startWebsocket()
+                setTimeout(() => {
+                    {% block afterStartWebSocket %}{% endblock afterStartWebSocket %}
+                }, 1000)
+            })
+        </script>
+        {% block scripts %}{% endblock scripts %}
+    </body>
+</html>
