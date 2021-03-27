@@ -2,7 +2,7 @@ from jinja2 import Environment, PackageLoader, select_autoescape
 import json 
 
 env = Environment(
-    loader=PackageLoader('AlarmClock', 'views'),
+    loader=PackageLoader('SmartClock', 'views'),
     autoescape=select_autoescape(['html', 'xml'])
 )
 
