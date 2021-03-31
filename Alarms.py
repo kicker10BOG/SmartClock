@@ -6,6 +6,9 @@ import helpers
 
 class Alarms(object):
     def __init__(self): 
+        self.currentAlarm = None
+        self.currentAlarmStartTime = None
+        self.snoozeCount = 0
         cherrypy.engine.subscribe('alarms-broadcast', self.listen)
         return
 
@@ -21,6 +24,15 @@ class Alarms(object):
                 self.updateNextAlarm(alarms)
             
             if m['command'] == 'getNext': 
+                self.updateNextAlarm(alarms)
+
+            if m['command'] == 'dismiss': 
+                self.currentAlarm = None
+                self.snoozeCount = 0
+                self.updateNextAlarm(alarms)
+
+            if m['command'] == 'snooze': 
+                self.snoozeCount += 1
                 self.updateNextAlarm(alarms)
 
             cherrypy.engine.publish('websocket-broadcast', json.dumps(alarms))
@@ -61,9 +73,22 @@ class Alarms(object):
             'Saturday': 5,
             'Sunday': 6
         }
+        intToDay = {val : key for key, val in dayToInt.items()}
         nowDT = datetime.now()
         nextAlarm = None
         nextAlarmDT = None
+        if self.currentAlarm: 
+            f = open('settings.json', 'r')
+            settings = json.load(f)
+            f.close()
+            nextOccurence = self.currentAlarmStartTime + timedelta(minutes = self.snoozeCount * int(settings['snoozeInterval']))
+            if nextOccurence > nowDT:
+                nextAlarm = self.currentAlarm
+                nextAlarm['day'] = intToDay[nextOccurence.weekday()]
+                nextAlarm['enabled'] = True
+                nextAlarm['snoozed'] = True
+                nextAlarm['time'] = nextOccurence.strftime('%H:%M')
+                nextAlarmDT = nextOccurence
         for alarm in alarms:
             if not alarm['enabled']: continue
             hour, minute = alarm['time'].split(':')
@@ -79,13 +104,13 @@ class Alarms(object):
                         nextAlarm = alarm
                         nextAlarm['day'] = day
                         nextAlarm['enabled'] = True
+                        nextAlarm['snoozed'] = False
                         nextAlarmDT = nextDay
         if not nextAlarm: nextAlarm = {'enabled': False}
         nextAlarm['type'] = 'nextAlarm'
         cherrypy.engine.publish('websocket-broadcast', json.dumps(nextAlarm))
 
-    @classmethod 
-    def checkAlarms(cls):
+    def checkAlarms(self):
         f = open('alarms.json', 'r')
         alarms = json.load(f)
         f.close()
@@ -99,6 +124,16 @@ class Alarms(object):
             'Sunday': 6
         }
         nowDT = datetime.now()
+        if self.currentAlarm: 
+            f = open('settings.json', 'r')
+            settings = json.load(f)
+            f.close()
+            nextOccurence = self.currentAlarmStartTime + timedelta(minutes = self.snoozeCount * int(settings['snoozeInterval']))
+            if nowDT.hour == nextOccurence.hour and nowDT.minute == nextOccurence.minute:
+                m = {
+                    'type': 'alarmTriggered'
+                }
+                cherrypy.engine.publish('websocket-broadcast', json.dumps(m))
         for alarm in alarms:
             if not alarm['enabled']: continue
             hour, minute = alarm['time'].split(':')
@@ -113,7 +148,10 @@ class Alarms(object):
                             m = {
                                 'type': 'alarmTriggered'
                             }
-                            # cls.triggeredAlarm = alarm
+                            # self.triggeredAlarm = alarm
                             cherrypy.engine.publish('websocket-broadcast', json.dumps(m))
-                            cls.updateNextAlarm(alarms)
-        threading.Timer(60 - nowDT.second + 1, cls.checkAlarms).start()
+                            self.currentAlarm = alarm
+                            self.currentAlarmStartTime = nowDT
+                            self.snoozeCount = 0
+                            self.updateNextAlarm(alarms)
+        threading.Timer(60 - nowDT.second + 1, self.checkAlarms).start()

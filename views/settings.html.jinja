@@ -14,6 +14,10 @@ Alarm Clock Settings
                     <option value="24" {{ 'selected' if settings['format'] == '24' else '' }}>24 Hour</option>
                 </select>
             </div>
+            <div class="form-field">
+                <label for="snoozeInterval">Snooze Interval</label>
+                <input type="number" id="snoozeInterval" value="{{ settings['snoozeInterval'] }}" />
+            </div>
             <button class="btn btn-primary" id="submitSettings">
                 Save
             </button>
@@ -25,9 +29,11 @@ Alarm Clock Settings
     $('#submitSettings').click((e) => {
         e.preventDefault()
         let format = $('#format').val()
+        let snoozeInterval = $('#snoozeInterval').val()
         let m = JSON.stringify({
             "type": "settings",
-            "format": format
+            format,
+            snoozeInterval
         })
         ws.send(m)
     })

@@ -19,6 +19,7 @@
             $(() => {
                 var ws
                 var format = {{ settings['format'] }}
+                var connectionAttempts = 0
 
                 function showTime() {
                     var date = new Date();
@@ -32,8 +33,10 @@
                             h = 12;
                         }
                         
-                        if (h > 12){
-                            h = h - 12;
+                        if (h > 11){
+                            if (h > 12){
+                                h = h - 12;
+                            }
                             session = "PM";
                         }
                     }
@@ -52,9 +55,10 @@
 
                 function startWebsocket() {
                     ws = new WebSocket(`ws://${window.location.host}/ws`)
+                    connectionAttempts += 1
 
                     ws.onopen = function(e) {
-                        console.log("[open] Connection established");
+                        console.log("[open] Connection established")
                     };
 
                     ws.onmessage = function(e) {
@@ -83,7 +87,12 @@
 
                     setTimeout(() => {
                         if (ws.readyState != WebSocket.OPEN) {
-                            startWebsocket()
+                            if (connectionAttempts > 5) {
+                                location.reload()
+                            }
+                            else {
+                                startWebsocket()
+                            }
                         }
                     }, 5000)
                 }

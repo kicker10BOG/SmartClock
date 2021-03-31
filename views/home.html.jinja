@@ -5,9 +5,74 @@ Alarm Clock
 {% block content %}
     <div class="clock" id="clockDisplay"></div>
     <div id="nextAlarm"></div>
+
+    <audio id="alarmSound">
+        <source src="/audio/alarm.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- Modal -->
+    <div class="modal fade" id="snoozeDismiss" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content bg-dark">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="snoozeDismissTitle">Snooze or Dismiss</h5>
+                    {# <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button> #}
+                </div>
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-sm-8">
+                                <button type="button" class="btn btn-primary btn-lg btn-fill btn-tall snooze">Snooze!</button>
+                            </div>
+                            <div class="col-sm-4 d-none d-sm-block">
+                                <button type="button" class="btn btn-danger btn-lg btn-fill btn-tall dismiss">Dismiss!</button>
+                            </div>
+                            <div class="col-sm-4 d-block d-sm-none">
+                                <button type="button" class="btn btn-danger btn-lg btn-fill btn-tall2 dismiss">Dismiss!</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    {# <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Save changes</button> #}
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock content %}
 {% block mainScript %}
     showTime()
+
+    function snooze() {
+        console.log('snooze')
+        let audioObj = $('#alarmSound')[0]
+        audioObj.pause()
+        audioObj.currentTime = 0
+        let m = JSON.stringify({
+            "type": "alarms",
+            "command": "snooze"
+        })
+        ws.send(m)
+        $('#snoozeDismiss').modal('hide')
+    }
+    function dismiss() {
+        console.log('dismiss')
+        let audioObj = $('#alarmSound')[0]
+        audioObj.pause()
+        audioObj.currentTime = 0
+        let m = JSON.stringify({
+            "type": "alarms",
+            "command": "dismiss"
+        })
+        ws.send(m)
+        $('#snoozeDismiss').modal('hide')
+    }
+
+    $('.snooze').click(snooze)
+    $('.dismiss').click(dismiss)
 {% endblock mainScript %}
 {% block afterStartWebSocket %}
     let m = JSON.stringify({
@@ -21,6 +86,11 @@ Alarm Clock
 {% block onWSMessage %}
     if (data.type === 'alarmTriggered') {
         console.log('ALARM SOUNDS')
+        let audioObj = $('#alarmSound')[0]
+        audioObj.volume = 0.02
+        audioObj.loop = true
+        audioObj.play()
+        $('#snoozeDismiss').modal('show')
     }
     if (data.type === 'nextAlarm') {
         let nextAlarm = data
@@ -36,8 +106,10 @@ Alarm Clock
                     h = 12;
                 }
                 
-                if (h > 12){
-                    h = h - 12;
+                if (h > 11){
+                    if (h > 12){
+                        h = h - 12;
+                    }
                     session = "PM";
                 }
             }
@@ -46,7 +118,13 @@ Alarm Clock
                 timeString += ` ${session}`
             }
             {# console.log(timeString) #}
-            $('#nextAlarm').html(`Next Alarm: ${timeString}`)
+            if (nextAlarm.snoozed) {
+                $('#nextAlarm').html(`Alarm Snoozed Until: ${timeString} <button type="button" class="btn btn-danger dismiss">Dismiss!</button>`)
+                $('.dismiss').click(dismiss)
+            }
+            else {
+                $('#nextAlarm').html(`Next Alarm: ${timeString}`)
+            }
         }
         else {
             $('#nextAlarm').html('No alarm enabled')

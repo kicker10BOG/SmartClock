@@ -23,6 +23,15 @@ class StatusWebSocketHandler(WebSocket):
             print(e)
             traceback.print_exc()
         # cherrypy.engine.publish('websocket-broadcast', m)
+        fsize = os.path.getsize('app.log')
+        if fsize > 50000: 
+            f = open('app.log', 'r')
+            d = f.readlines()
+            f.close()
+            del d[0:-100]
+            f = open('app.log', 'w')
+            f.writelines(d)
+            f.close()
         # pass
 
     def closed(self, code, reason="A client left the room without a proper explanation."):
@@ -73,9 +82,10 @@ if __name__ == '__main__':
     
     # load alarms page
     from Alarms import Alarms
-    cherrypy.tree.mount(Alarms(), '/alarms')
+    alarms = Alarms()
+    cherrypy.tree.mount(alarms, '/alarms')
 
     cherrypy.engine.start()
     root.update()
-    Alarms.checkAlarms()
+    alarms.checkAlarms()
     cherrypy.engine.block()

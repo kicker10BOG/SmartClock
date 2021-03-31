@@ -26,3 +26,11 @@ body {
     width: 100%;
     margin: 5px 0;
 }
+
+.btn-tall {
+    height: 220px;
+}
+
+.btn-tall2 {
+    height: 120px;
+}

@@ -13,6 +13,7 @@ class Settings(object):
             settings = json.load(f)
             f.close()
             settings['format'] = m['format']
+            settings['snoozeInterval'] = m['snoozeInterval']
 
             if hasattr(self, 'settings') and self.settings != settings :
                 self.settings = settings
