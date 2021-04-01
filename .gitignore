@@ -4,3 +4,4 @@ __pycache__/
 *$py.class
 app.log
 alarms.json
+settings.json
