@@ -29,10 +29,14 @@ class Alarms(object):
             if m['command'] == 'dismiss': 
                 self.currentAlarm = None
                 self.snoozeCount = 0
+                m1 = {'type': 'alarmDismissed'}
+                cherrypy.engine.publish('websocket-broadcast', json.dumps(m1))
                 self.updateNextAlarm(alarms)
 
             if m['command'] == 'snooze': 
                 self.snoozeCount += 1
+                m1 = {'type': 'alarmSnoozed'}
+                cherrypy.engine.publish('websocket-broadcast', json.dumps(m1))
                 self.updateNextAlarm(alarms)
 
             cherrypy.engine.publish('websocket-broadcast', json.dumps(alarms))

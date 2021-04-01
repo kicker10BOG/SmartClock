@@ -85,12 +85,19 @@ Smnart Clock
 {% endblock afterStartWebSocket %}
 {% block onWSMessage %}
     if (data.type === 'alarmTriggered') {
-        console.log('ALARM SOUNDS')
+        {# console.log('ALARM SOUNDS') #}
         let audioObj = $('#alarmSound')[0]
         audioObj.volume = 0.02
         audioObj.loop = true
         audioObj.play()
         $('#snoozeDismiss').modal('show')
+    }
+    if (data.type === 'alarmDismissed' || data.type === 'alarmSnoozed') {
+        {# console.log('ALARM SOUNDS') #}
+        let audioObj = $('#alarmSound')[0]
+        audioObj.pause()
+        audioObj.currentTime = 0
+        $('#snoozeDismiss').modal('hide')
     }
     if (data.type === 'nextAlarm') {
         let nextAlarm = data
