@@ -18,6 +18,13 @@ Smart Clock Settings
                 <label for="snoozeInterval">Snooze Interval</label>
                 <input type="number" id="snoozeInterval" value="{{ settings['snoozeInterval'] }}" />
             </div>
+            <div class="form-field">
+                <label for="seconds">Seconds</label>
+                <select id="seconds">
+                    <option value="show" {{ 'selected' if settings['seconds'] == 'show' else '' }}>Show</option>
+                    <option value="hide" {{ 'selected' if settings['seconds'] == 'hide' else '' }}>Hide</option>
+                </select>
+            </div>
             <button class="btn btn-primary" id="submitSettings">
                 Save
             </button>
@@ -30,10 +37,12 @@ Smart Clock Settings
         e.preventDefault()
         let format = $('#format').val()
         let snoozeInterval = $('#snoozeInterval').val()
+        let seconds = $('#seconds').val()
         let m = JSON.stringify({
             "type": "settings",
             format,
-            snoozeInterval
+            snoozeInterval,
+            seconds
         })
         ws.send(m)
     })

@@ -18,7 +18,8 @@
         <script>
             $(() => {
                 var ws
-                var format = {{ settings['format'] }}
+                var format = {{ settings['format'] if settings['format'] else 12 }}
+                var showSeconds = "{{ settings['seconds'] if settings['seconds'] else 'show' }}"
                 var connectionAttempts = 0
 
                 function showTime() {
@@ -45,7 +46,7 @@
                     m = (m < 10) ? "0" + m : m;
                     s = (s < 10) ? "0" + s : s;
                     
-                    var time = h + ":" + m + ":" + s + " " + (format == 12 ? session : '');
+                    var time = h + ":" + m + (showSeconds == 'show' ? ":" + s : '') + " " + (format == 12 ? session : '');
                     $('#clockDisplay').text(time);
                     
                     setTimeout(showTime, 1000);
@@ -66,6 +67,7 @@
                         {# console.log(data) #}
                         if (data.type === 'update') {
                             format = data.format
+                            showSeconds = data.seconds
                         }
                         {% block onWSMessage %}{% endblock onWSMessage %}
                     };
