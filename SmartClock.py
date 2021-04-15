@@ -63,7 +63,6 @@ if __name__ == '__main__':
     WebSocketPlugin(cherrypy.engine).subscribe()
     cherrypy.tools.websocket = WebSocketTool()
     cherrypy.config.update('cherrypy.conf')
-    cherrypy.config.namespaces['dobot'] = {}
 
     wsConfig = {
         '/ws': {'tools.websocket.on': True,
