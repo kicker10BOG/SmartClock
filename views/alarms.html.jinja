@@ -36,7 +36,7 @@ Smart Clock Alarms
                                 {% endfor %}
                             </td>
                             <td>
-                                <input type="time" id="time-{{ alarm['id'] }}" value="{{ alarm['time'] }}" class="form-control" />
+                                <input type="time" id="time-{{ alarm['id'] }}" value="{{ alarm['time'] }}" class="form-control" style="max-width: 150px;" />
                             </td>
                             <td>
                                 <label for="enabled-{{ alarm['id'] }}" class="form-check-label">Enabled</label>
@@ -78,7 +78,7 @@ Smart Clock Alarms
                             <label for="time-new" class="form-label">Time</label>
                         </div>
                         <div class="col-8 col-sm-9 col-md-10 col-xl-11">
-                            <input type="time" id="time-new" class="form-control" />
+                            <input type="time" id="time-new" class="form-control" style="max-width: 150px;" />
                         </div>
                     </div>
                 </div>
