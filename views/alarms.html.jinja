@@ -147,4 +147,29 @@ Smart Clock Alarms
             location.reload()
         }, 500)
     })
+    
+    $('.deleteAlarmBtn').click((e) => {
+        let id = $(e.target).data('alarmId')
+
+        let days = {}
+        {% for day in days -%}
+        days.{{ day }} = $(`#{{day}}-${id}`).prop('checked') 
+        {% endfor %}
+        let enabled = $(`#enabled-${id}`).prop('checked')
+        let time = $(`#time-${id}`).val()
+
+        let m = {
+            type: "alarms",
+            command: "delete",
+            id,
+            days,
+            time,
+            enabled
+        }
+        console.log(m)
+        ws.send(JSON.stringify(m))
+        setTimeout(() => {
+            location.reload()
+        }, 500)
+    })
 {% endblock mainScript %}

@@ -26,6 +26,10 @@ class Alarms(object):
             if m['command'] == 'set': 
                 alarms = self.set(m, alarms)
                 self.updateNextAlarm(alarms)
+
+            if m['command'] == 'delete': 
+                alarms = self.delete(m, alarms)
+                self.updateNextAlarm(alarms)
             
             if m['command'] == 'getNext': 
                 self.updateNextAlarm(alarms)
@@ -71,6 +75,15 @@ class Alarms(object):
         print(m)
         m['id'] = int(alarms[-1]['id']) + 1 if len(alarms) > 0 else 1
         alarms.append(m)
+        print(alarms)
+        return alarms
+
+    def delete(self, m, alarms):
+        print(m)
+        for (i, alarm) in enumerate(alarms):
+            if alarm['id'] == m['id']:
+                del alarms[i]
+                break
         print(alarms)
         return alarms
     
