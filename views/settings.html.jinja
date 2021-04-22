@@ -7,23 +7,29 @@ Smart Clock Settings
 {% block content %}
     <div>
         <form>
-            <div class="form-field">
-                <label for="format">Format</label>
-                <select id="format">
-                    <option value="12" {{ 'selected' if settings['format'] == '12' else '' }}>12 Hour</option>
-                    <option value="24" {{ 'selected' if settings['format'] == '24' else '' }}>24 Hour</option>
-                </select>
+            <div class="row mb-3">
+                <label for="format" class="col-sm-2 col-form-label">Format</label>
+                <div class=" col-sm-10">
+                    <select id="format" class="form-select">
+                        <option value="12" {{ 'selected' if settings['format'] == '12' else '' }}>12 Hour</option>
+                        <option value="24" {{ 'selected' if settings['format'] == '24' else '' }}>24 Hour</option>
+                    </select>
+                </div>
             </div>
-            <div class="form-field">
-                <label for="snoozeInterval">Snooze Interval</label>
-                <input type="number" id="snoozeInterval" value="{{ settings['snoozeInterval'] }}" />
+            <div class="row mb-3">
+                <label for="snoozeInterval" class="col-sm-2 col-form-label">Snooze Interval</label>
+                <div class=" col-sm-10">
+                    <input type="number" class="form-control" id="snoozeInterval" value="{{ settings['snoozeInterval'] }}" />
+                </div>
             </div>
-            <div class="form-field">
-                <label for="seconds">Seconds</label>
-                <select id="seconds">
-                    <option value="show" {{ 'selected' if settings['seconds'] == 'show' else '' }}>Show</option>
-                    <option value="hide" {{ 'selected' if settings['seconds'] == 'hide' else '' }}>Hide</option>
-                </select>
+            <div class="row mb-3">
+                <label for="seconds" class="col-sm-2 col-form-label">Seconds</label>
+                <div class=" col-sm-10">
+                    <select id="seconds" class="form-select">
+                        <option value="show" {{ 'selected' if settings['seconds'] == 'show' else '' }}>Show</option>
+                        <option value="hide" {{ 'selected' if settings['seconds'] == 'hide' else '' }}>Hide</option>
+                    </select>
+                </div>
             </div>
             <button class="btn btn-primary" id="submitSettings">
                 Save
