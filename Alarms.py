@@ -22,6 +22,10 @@ class Alarms(object):
             if m['command'] == 'update': 
                 alarms = self.update(m, alarms)
                 self.updateNextAlarm(alarms)
+
+            if m['command'] == 'set': 
+                alarms = self.set(m, alarms)
+                self.updateNextAlarm(alarms)
             
             if m['command'] == 'getNext': 
                 self.updateNextAlarm(alarms)
@@ -60,6 +64,13 @@ class Alarms(object):
                 alarm['days'] = m['days']
                 alarm['time'] = m['time']
                 alarm['enabled'] = m['enabled']
+        print(alarms)
+        return alarms
+
+    def set(self, m, alarms):
+        print(m)
+        m['id'] = int(alarms[-1]['id']) + 1 if len(alarms) > 0 else 1
+        alarms.append(m)
         print(alarms)
         return alarms
     
