@@ -12,7 +12,7 @@ body {
     letter-spacing: 7px;
 }
 
-#nextAlarm {
+div#nextAlarm, div#date {
     padding: 10px;
     text-align: center;
     color: #17D4FE;

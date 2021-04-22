@@ -1,5 +1,6 @@
 {% extends "layout.html.jinja" %}
 {% block content %}
+    <div id="date"></div>
     <div class="clock" id="clockDisplay"></div>
     <div id="nextAlarm"></div>
 
@@ -84,7 +85,7 @@
     if (data.type === 'alarmTriggered') {
         {# console.log('ALARM SOUNDS') #}
         let audioObj = $('#alarmSound')[0]
-        audioObj.volume = 0.02
+        audioObj.volume = 0.01
         audioObj.loop = true
         audioObj.play()
         $('#snoozeDismiss').modal('show')

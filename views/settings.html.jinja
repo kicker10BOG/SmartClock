@@ -31,6 +31,15 @@ Smart Clock Settings
                     </select>
                 </div>
             </div>
+            <div class="row mb-3">
+                <label for="date" class="col-sm-2 col-form-label">Date</label>
+                <div class=" col-sm-10">
+                    <select id="date" class="form-select">
+                        <option value="show" {{ 'selected' if settings['date'] == 'show' else '' }}>Show</option>
+                        <option value="hide" {{ 'selected' if settings['date'] == 'hide' else '' }}>Hide</option>
+                    </select>
+                </div>
+            </div>
             <button class="btn btn-primary" id="submitSettings">
                 Save
             </button>
@@ -44,11 +53,13 @@ Smart Clock Settings
         let format = $('#format').val()
         let snoozeInterval = $('#snoozeInterval').val()
         let seconds = $('#seconds').val()
+        let date = $('#date').val()
         let m = JSON.stringify({
             "type": "settings",
             format,
             snoozeInterval,
-            seconds
+            seconds,
+            date
         })
         ws.send(m)
     })

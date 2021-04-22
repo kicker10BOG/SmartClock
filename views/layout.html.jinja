@@ -20,36 +20,48 @@
                 var ws
                 var format = {{ settings['format'] if settings['format'] else 12 }}
                 var showSeconds = "{{ settings['seconds'] if settings['seconds'] else 'show' }}"
+                var showDate = "{{ settings['date'] if settings['date'] else 'show' }}"
                 var connectionAttempts = 0
 
                 function showTime() {
-                    var date = new Date();
-                    var h = date.getHours(); // 0 - 23
-                    var m = date.getMinutes(); // 0 - 59
-                    var s = date.getSeconds(); // 0 - 59
-                    var session = "AM";
+                    var date = new Date()
+                    var h = date.getHours() // 0 - 23
+                    var m = date.getMinutes() // 0 - 59
+                    var s = date.getSeconds() // 0 - 59
+                    var session = "AM"
                     
                     if (format == 12) {
                         if (h == 0){
-                            h = 12;
+                            h = 12
                         }
                         
                         if (h > 11){
                             if (h > 12){
-                                h = h - 12;
+                                h = h - 12
                             }
-                            session = "PM";
+                            session = "PM"
                         }
                     }
                     
-                    h = (h < 10) ? "0" + h : h;
-                    m = (m < 10) ? "0" + m : m;
-                    s = (s < 10) ? "0" + s : s;
+                    h = (h < 10) ? "0" + h : h
+                    m = (m < 10) ? "0" + m : m
+                    s = (s < 10) ? "0" + s : s
                     
-                    var time = h + ":" + m + (showSeconds == 'show' ? ":" + s : '') + " " + (format == 12 ? session : '');
-                    $('#clockDisplay').text(time);
+                    var time = h + ":" + m + (showSeconds == 'show' ? ":" + s : '') + " " + (format == 12 ? session : '')
+                    $('#clockDisplay').text(time)
+
+                    if (showDate == 'show') {
+                        var month = date.toLocaleString('default', { month: 'long' })
+                        var day = date.toLocaleString('default', { day: '2-digit' })
+                        var wDay = date.toLocaleString('default', { weekday: 'long' })
+                        var dstring = `${wDay}, ${month} ${day}`
+                        $('#date').text(dstring)
+                    }
+                    else {
+                        $('#date').text(' ')
+                    }
                     
-                    setTimeout(showTime, 1000);
+                    setTimeout(showTime, 1000)
                 }
 
                 {% block mainScript %}{% endblock mainScript %}
@@ -60,6 +72,7 @@
 
                     ws.onopen = function(e) {
                         console.log("[open] Connection established")
+                        connectionAttempts = 0
                     };
 
                     ws.onmessage = function(e) {
@@ -68,6 +81,7 @@
                         if (data.type === 'update') {
                             format = data.format
                             showSeconds = data.seconds
+                            showDate = data.date
                         }
                         {% block onWSMessage %}{% endblock onWSMessage %}
                     };
@@ -75,16 +89,16 @@
                     ws.onclose = function(e){
                         // connection closed, discard old websocket and create a new one in 5s
                         if (e.wasClean) {
-                            console.log(`[close] Connection closed cleanly, code=${e.code} reason=${e.reason}`);
+                            console.log(`[close] Connection closed cleanly, code=${e.code} reason=${e.reason}`)
                         } else {
-                            console.log('[close] Connection died');
+                            console.log('[close] Connection died')
                         }
                         ws = null
                         setTimeout(startWebsocket, 5000)
                     }
 
                     ws.onerror = function(error) {
-                        console.log(`[error] ${error.message}`);
+                        console.log(`[error] ${error.message}`)
                     };
 
                     setTimeout(() => {

@@ -15,13 +15,15 @@ class Settings(object):
             settings['format'] = m['format']
             settings['snoozeInterval'] = m['snoozeInterval']
             settings['seconds'] = m['seconds']
+            settings['date'] = m['date']
 
             if hasattr(self, 'settings') and self.settings != settings :
                 self.settings = settings
                 m = {
                     "type": "update",
                     "format": self.settings['format'],
-                    "seconds": self.settings['seconds']
+                    "seconds": self.settings['seconds'],
+                    "date": self.settings['date']
                 }
                 cherrypy.engine.publish('websocket-broadcast', json.dumps(m))
             if not hasattr(self, 'settings'): 
