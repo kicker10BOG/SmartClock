@@ -10,6 +10,16 @@
     <body class="bg-dark text-white">
         {% include "navbar.html.jinja" %}
         
+        <div id="disconnected-alert" class="alert alert-danger d-none" role="alert">
+            Connection to server lost.
+        </div>
+        <div id="connecting-alert" class="alert alert-warning d-none" role="alert">
+            Attempting to connnect to server. 
+        </div>
+        <div id="connected-alert" class="alert alert-success d-none" role="alert">
+            Connected to server.
+        </div>
+
         <div id="content" class="container">{% block content %}{% endblock %}</div>
 
         <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
@@ -67,10 +77,18 @@
                 {% block mainScript %}{% endblock mainScript %}
 
                 function startWebsocket() {
+                    $('#connecting-alert').removeClass('d-none')
+
                     ws = new WebSocket(`ws://${window.location.host}/ws`)
                     connectionAttempts += 1
 
                     ws.onopen = function(e) {
+                        $('#connected-alert').removeClass('d-none')
+                        $('#disconnected-alert').addClass('d-none')
+                        $('#connecting-alert').addClass('d-none')
+                        setTimeout(() => {
+                            $('#connected-alert').addClass('d-none')
+                        }, 2000)
                         console.log("[open] Connection established")
                         connectionAttempts = 0
                     };
@@ -87,6 +105,8 @@
                     };
 
                     ws.onclose = function(e){
+                        $('#connected-alert').addClass('d-none')
+                        $('#disconnected-alert').removeClass('d-none')
                         // connection closed, discard old websocket and create a new one in 5s
                         if (e.wasClean) {
                             console.log(`[close] Connection closed cleanly, code=${e.code} reason=${e.reason}`)
