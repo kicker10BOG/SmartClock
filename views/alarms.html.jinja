@@ -14,6 +14,7 @@ Smart Clock Alarms
                 <table class="table table-striped table-dark">
                     <thead>
                         <tr>
+                            <th>Name</th>
                             <th>Days</th>
                             <th>Time</th>
                             <th>Enabled</th>
@@ -23,6 +24,9 @@ Smart Clock Alarms
                     <tbody>
                         {% for alarm in alarms %}
                         <tr>
+                            <td>
+                                <input type="text" id="name-{{ alarm['id'] }}" value="{{ alarm['name'] }}" class="form-control" style="max-width: 150px;" />
+                            </td>
                             <td style="min-width: 130px;">
                                 {% for day in days -%}
                                 <div class="row no-gutter">
@@ -60,6 +64,16 @@ Smart Clock Alarms
                 <a data-bs-toggle="collapse" href="#new-alarm-body">Create New Alarm</a>
             </div>
             <div class="card-text collapse" id="new-alarm-body">
+                <div class="mb-3">
+                    <div class="row no-gutter">
+                        <div class="col-4 col-sm-3 col-md-2 col-xl-1">
+                            <label for="name-new" class="form-label">Name</label>
+                        </div>
+                        <div class="col-8 col-sm-9 col-md-10 col-xl-11">
+                            <input type="text" id="name-new" class="form-control" style="max-width: 150px;" />
+                        </div>
+                    </div>
+                </div>
                 <div class="mb-3">
                     {% for day in days -%}
                     <div class="row no-gutter">
@@ -104,7 +118,7 @@ Smart Clock Alarms
 
     $('.updateAlarmBtn').click((e) => {
         let id = $(e.target).data('alarmId')
-
+        let name = $(`#name-${id}`).val()
         let days = {}
         {% for day in days -%}
         days.{{ day }} = $(`#{{day}}-${id}`).prop('checked') 
@@ -116,6 +130,7 @@ Smart Clock Alarms
             type: "alarms",
             command: "update",
             id,
+            name,
             days,
             time,
             enabled
@@ -128,6 +143,7 @@ Smart Clock Alarms
     })
 
     $('.saveAlarmBtn').click((e) => {
+        let name = $('#name-new').val()
         let days = {}
         {% for day in days -%}
         days.{{ day }} = $(`#{{day}}-new`).prop('checked') 
@@ -138,6 +154,7 @@ Smart Clock Alarms
         let m = JSON.stringify({
             "type": "alarms",
             "command": "set",
+            name,
             days,
             time,
             enabled

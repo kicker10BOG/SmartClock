@@ -1,10 +1,10 @@
-import cherrypy, os, sys, threading, traceback
-from cherrypy._cpdispatch import Dispatcher
+import cherrypy, os, sys, traceback
 
 from ws4py.server.cherrypyserver import WebSocketPlugin, WebSocketTool
 from ws4py.websocket import WebSocket
 # from ws4py.messaging import TextMessage
 
+import MqttClient
 import json
 import helpers
 
@@ -54,15 +54,13 @@ class SmartClock(object):
     def ws(self):
         cherrypy.log("Handler created: %s" % repr(cherrypy.request.ws_handler))
         return
-
-    def update(self):
-        # threading.Timer(self.settings['updateInterval'], self.update).start()
-        return 
         
 if __name__ == '__main__':
     WebSocketPlugin(cherrypy.engine).subscribe()
     cherrypy.tools.websocket = WebSocketTool()
     cherrypy.config.update('cherrypy.conf')
+    cherrypy.config.namespaces['smartclock'] = {}
+    cherrypy.config.namespaces['smartclock']['mqtt'] = {}
 
     wsConfig = {
         '/ws': {'tools.websocket.on': True,
@@ -84,7 +82,8 @@ if __name__ == '__main__':
     alarms = Alarms()
     cherrypy.tree.mount(alarms, '/alarms')
 
+    # setup mqtt
+    MqttClient.MqttClient(cherrypy.engine, app).subscribe()
+
     cherrypy.engine.start()
-    root.update()
-    alarms.checkAlarms()
     cherrypy.engine.block()

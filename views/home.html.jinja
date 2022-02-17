@@ -85,7 +85,7 @@
     if (data.type === 'alarmTriggered') {
         {# console.log('ALARM SOUNDS') #}
         let audioObj = $('#alarmSound')[0]
-        audioObj.volume = 0.01
+        audioObj.volume = 0.1
         audioObj.loop = true
         audioObj.play()
         $('#snoozeDismiss').modal('show')

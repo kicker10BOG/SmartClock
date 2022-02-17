@@ -1,4 +1,4 @@
-import cherrypy, os, sys, json, time, threading
+import cherrypy, json
 from datetime import datetime, timedelta
 from dateutil import relativedelta
 import helpers
@@ -10,6 +10,7 @@ class Alarms(object):
         self.currentAlarmStartTime = None
         self.snoozeCount = 0
         cherrypy.engine.subscribe('alarms-broadcast', self.listen)
+        cherrypy.engine.subscribe('main', self.checkAlarms)
         return
 
     def listen(self, m): 
@@ -35,15 +36,21 @@ class Alarms(object):
                 self.updateNextAlarm(alarms)
 
             if m['command'] == 'dismiss': 
+                m1 = {
+                    'type': 'alarmDismissed',
+                    'name': self.currentAlarm['name']
+                    }
                 self.currentAlarm = None
                 self.snoozeCount = 0
-                m1 = {'type': 'alarmDismissed'}
                 cherrypy.engine.publish('websocket-broadcast', json.dumps(m1))
                 self.updateNextAlarm(alarms)
 
             if m['command'] == 'snooze': 
                 self.snoozeCount += 1
-                m1 = {'type': 'alarmSnoozed'}
+                m1 = {
+                    'type': 'alarmSnoozed',
+                    'name': self.currentAlarm['name']
+                    }
                 cherrypy.engine.publish('websocket-broadcast', json.dumps(m1))
                 self.updateNextAlarm(alarms)
 
@@ -65,6 +72,7 @@ class Alarms(object):
         print(m)
         for alarm in alarms:
             if alarm['id'] == m['id']:
+                alarm['name'] = m['name']
                 alarm['days'] = m['days']
                 alarm['time'] = m['time']
                 alarm['enabled'] = m['enabled']
@@ -159,7 +167,8 @@ class Alarms(object):
             nextOccurence = self.currentAlarmStartTime + timedelta(minutes = self.snoozeCount * int(settings['snoozeInterval']))
             if nowDT.hour == nextOccurence.hour and nowDT.minute == nextOccurence.minute:
                 m = {
-                    'type': 'alarmTriggered'
+                    'type': 'alarmTriggered',
+                    'name': self.currentAlarm['name']
                 }
                 cherrypy.engine.publish('websocket-broadcast', json.dumps(m))
         for alarm in alarms:
@@ -172,9 +181,10 @@ class Alarms(object):
                     nextDay = nowDT + relativedelta.relativedelta(weekday = dayToInt[day])
                     nextDay = nextDay.replace(hour=hour, minute=minute, second=0)
                     if nextDay <= nowDT: 
-                        if nextDay.hour == nowDT.hour and nextDay.minute == nowDT.minute:
+                        if nextDay.hour == nowDT.hour and nextDay.minute == nowDT.minute and nowDT.second == 0:
                             m = {
-                                'type': 'alarmTriggered'
+                                'type': 'alarmTriggered',
+                                'name': alarm['name']
                             }
                             # self.triggeredAlarm = alarm
                             cherrypy.engine.publish('websocket-broadcast', json.dumps(m))
@@ -182,4 +192,3 @@ class Alarms(object):
                             self.currentAlarmStartTime = nowDT
                             self.snoozeCount = 0
                             self.updateNextAlarm(alarms)
-        threading.Timer(60 - nowDT.second + 1, self.checkAlarms).start()
