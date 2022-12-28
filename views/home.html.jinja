@@ -71,6 +71,15 @@
 
     $('.snooze').click(snooze)
     $('.dismiss').click(dismiss)
+    
+    $(document).keyup((e) => {
+        if (e.code == 'KeyD') {
+            dismiss()
+        }
+        else if (e.code == 'KeyS') {
+            snooze()
+        }
+    })
 {% endblock mainScript %}
 {% block afterStartWebSocket %}
     let m = JSON.stringify({
@@ -98,6 +107,7 @@
         $('#snoozeDismiss').modal('hide')
     }
     if (data.type === 'nextAlarm') {
+        console.log(data)
         let nextAlarm = data
         if (nextAlarm.enabled) {
             let time = nextAlarm.time.split(':')
@@ -128,7 +138,7 @@
                 $('.dismiss').click(dismiss)
             }
             else {
-                $('#nextAlarm').html(`Next Alarm: ${timeString}`)
+                $('#nextAlarm').html(`Alarm: ${timeString}`)
             }
         }
         else {

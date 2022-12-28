@@ -20,7 +20,7 @@
             Connected to server.
         </div>
 
-        <div id="content" class="container">{% block content %}{% endblock %}</div>
+        <div id="content" class="container-fluid">{% block content %}{% endblock %}</div>
 
         <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
         <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js" integrity="sha384-SR1sx49pcuLnqZUnnPwx6FCym0wLsk5JZuNx2bPPENzswTNFaQU1RDvt3wT4gWFG" crossorigin="anonymous"></script>
@@ -38,8 +38,15 @@
                     var h = date.getHours() // 0 - 23
                     var m = date.getMinutes() // 0 - 59
                     var s = date.getSeconds() // 0 - 59
-                    var session = "AM"
+                    var session = ""
                     
+                    if (h > 9 && h < 21) {
+                        $('#content').css('color', '#FFFFFF')
+                    }
+                    else {
+                        $('#content').css('color', '#FF0000')
+                    }
+
                     if (format == 12) {
                         if (h == 0){
                             h = 12
@@ -49,11 +56,11 @@
                             if (h > 12){
                                 h = h - 12
                             }
-                            session = "PM"
+                            session = "P"
                         }
                     }
                     
-                    h = (h < 10) ? "0" + h : h
+                    // h = (h < 10) ? "0" + h : h
                     m = (m < 10) ? "0" + m : m
                     s = (s < 10) ? "0" + s : s
                     
@@ -61,9 +68,9 @@
                     $('#clockDisplay').text(time)
 
                     if (showDate == 'show') {
-                        var month = date.toLocaleString('default', { month: 'long' })
+                        var month = date.toLocaleString('default', { month: 'short' })
                         var day = date.toLocaleString('default', { day: '2-digit' })
-                        var wDay = date.toLocaleString('default', { weekday: 'long' })
+                        var wDay = date.toLocaleString('default', { weekday: 'short' })
                         var dstring = `${wDay}, ${month} ${day}`
                         $('#date').text(dstring)
                     }

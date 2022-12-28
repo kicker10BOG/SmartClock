@@ -109,7 +109,15 @@ class Alarms(object):
             'Saturday': 5,
             'Sunday': 6
         }
-        intToDay = {val : key for key, val in dayToInt.items()}
+        intToDay = {
+            0: 'Mon',
+            1: 'Tue',
+            2: 'Wed',
+            3: 'Thu',
+            4: 'Fri',
+            5: 'Sat',
+            6: 'Sun'
+        }
         nowDT = datetime.now()
         nextAlarm = None
         nextAlarmDT = None
@@ -118,6 +126,10 @@ class Alarms(object):
             settings = json.load(f)
             f.close()
             nextOccurence = self.currentAlarmStartTime + timedelta(minutes = self.snoozeCount * int(settings['snoozeInterval']))
+            maxDT = nowDT + timedelta(minutes = int(settings['snoozeInterval']))
+            while (nextOccurence > maxDT) :
+                self.snoozeCount -= 1
+                nextOccurence = self.currentAlarmStartTime + timedelta(minutes = self.snoozeCount * int(settings['snoozeInterval']))
             if nextOccurence > nowDT:
                 nextAlarm = self.currentAlarm
                 nextAlarm['day'] = intToDay[nextOccurence.weekday()]
@@ -138,7 +150,7 @@ class Alarms(object):
                         nextDay += timedelta(days=7)
                     if not nextAlarmDT or nextDay <= nextAlarmDT:
                         nextAlarm = alarm
-                        nextAlarm['day'] = day
+                        nextAlarm['day'] = intToDay[dayToInt[day]]
                         nextAlarm['enabled'] = True
                         nextAlarm['snoozed'] = False
                         nextAlarmDT = nextDay
