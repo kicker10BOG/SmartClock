@@ -4,7 +4,6 @@ from ws4py.server.cherrypyserver import WebSocketPlugin, WebSocketTool
 from ws4py.websocket import WebSocket
 # from ws4py.messaging import TextMessage
 
-import MqttClient
 import json
 import helpers
 
@@ -60,7 +59,6 @@ if __name__ == '__main__':
     cherrypy.tools.websocket = WebSocketTool()
     cherrypy.config.update('cherrypy.conf')
     cherrypy.config.namespaces['smartclock'] = {}
-    cherrypy.config.namespaces['smartclock']['mqtt'] = {}
 
     wsConfig = {
         '/ws': {'tools.websocket.on': True,
@@ -81,9 +79,6 @@ if __name__ == '__main__':
     from Alarms import Alarms
     alarms = Alarms()
     cherrypy.tree.mount(alarms, '/alarms')
-
-    # setup mqtt
-    MqttClient.MqttClient(cherrypy.engine, app).subscribe()
 
     cherrypy.engine.start()
     cherrypy.engine.block()

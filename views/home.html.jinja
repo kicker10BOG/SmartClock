@@ -94,7 +94,7 @@
     if (data.type === 'alarmTriggered') {
         {# console.log('ALARM SOUNDS') #}
         let audioObj = $('#alarmSound')[0]
-        audioObj.volume = 0.1
+        audioObj.volume = 0.2
         audioObj.loop = true
         audioObj.play()
         $('#snoozeDismiss').modal('show')
@@ -134,7 +134,8 @@
             }
             {# console.log(timeString) #}
             if (nextAlarm.snoozed) {
-                $('#nextAlarm').html(`Alarm Snoozed Until: ${timeString} <button type="button" class="btn btn-danger dismiss">Dismiss!</button>`)
+                let timeStringSnoozed = `${h.toString().padStart(2, '0')}:${m}`
+                $('#nextAlarm').html(`Snoozed: ${timeStringSnoozed} <button type="button" class="btn btn-danger btn-xl dismiss">Dismiss!</button>`)
                 $('.dismiss').click(dismiss)
             }
             else {

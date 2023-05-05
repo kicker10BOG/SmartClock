@@ -139,7 +139,7 @@ class Alarms(object):
                 nextAlarmDT = nextOccurence
         for alarm in alarms:
             if not alarm['enabled']: continue
-            hour, minute = alarm['time'].split(':')
+            hour, minute = alarm['time'].split(':') 
             hour = int(hour)
             minute = int(minute)
             for day in alarm['days']: 
