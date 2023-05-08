@@ -2,7 +2,11 @@ import cherrypy, os, sys, json
 import helpers
 
 class Settings(object):
-    def __init__(self): 
+    def __init__(self):
+        if not os.path.isfile('settings.json'):
+            with open('settings.json', 'w') as f:
+                d = {"updateInterval": 10, "format": 12, "snoozeInterval": 10, "seconds": "hide", "date": "show"}
+                json.dump(d, f) 
         cherrypy.engine.subscribe('settings-broadcast', self.listen)
         return
 
@@ -12,8 +16,8 @@ class Settings(object):
             f = open('settings.json', 'r')
             settings = json.load(f)
             f.close()
-            settings['format'] = m['format']
-            settings['snoozeInterval'] = m['snoozeInterval']
+            settings['format'] = int(m['format'])
+            settings['snoozeInterval'] = int(m['snoozeInterval'])
             settings['seconds'] = m['seconds']
             settings['date'] = m['date']
 
@@ -21,7 +25,7 @@ class Settings(object):
                 self.settings = settings
                 m = {
                     "type": "update",
-                    "format": self.settings['format'],
+                    "format": int(self.settings['format']),
                     "seconds": self.settings['seconds'],
                     "date": self.settings['date']
                 }

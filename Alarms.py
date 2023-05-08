@@ -1,4 +1,4 @@
-import cherrypy, json
+import cherrypy, json, os
 from datetime import datetime, timedelta
 from dateutil import relativedelta
 import helpers
@@ -9,6 +9,10 @@ class Alarms(object):
         self.currentAlarm = None
         self.currentAlarmStartTime = None
         self.snoozeCount = 0
+        if not os.path.isfile('alarms.json'):
+            with open('alarms.json', 'w') as f:
+                d = json.loads('[]')
+                json.dump(d, f)
         cherrypy.engine.subscribe('alarms-broadcast', self.listen)
         cherrypy.engine.subscribe('main', self.checkAlarms)
         return

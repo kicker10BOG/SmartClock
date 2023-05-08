@@ -9,4 +9,4 @@ RUN pip3 install -r requirements.txt
 EXPOSE 8880
 
 COPY . .
-ENTRYPOINT ["python3", "SmartClock.py"]
+ENTRYPOINT ["python3", "-u", "SmartClock.py"]
